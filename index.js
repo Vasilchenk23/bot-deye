@@ -16,7 +16,7 @@ bot.onText(/\/start/, (msg) => {
         [
           {
             text: "📞 Поділитися контактом",
-            request_contact: true, 
+            request_contact: true,
           },
         ],
       ],
@@ -32,14 +32,18 @@ bot.on('contact', (msg) => {
   const userName = msg.contact.first_name;
 
   bot.sendMessage(chatId, `Дякуємо за поділ контактами! 👍 Тепер напишіть ваше питання ❓.`);
-  bot.sendMessage(chatId, 'Будь ласка, надішліть ваше питання ✍️.');
 
-  bot.on('message', (msg) => {
-    const userQuestion = msg.text;
+  const handleUserQuestion = (msg) => {
+    if (msg.chat.id === chatId) {
+      const userQuestion = msg.text;
 
-    if (userQuestion && userQuestion !== '/start') {
-      bot.sendMessage(groupId, `Нове питання від користувача! 📱\nІм'я: ${userName}\nТелефон: ${userContact}\nПитання: ${userQuestion}`);
-      bot.sendMessage(chatId, `Ваше питання: "${userQuestion}" 🤔. Дякуємо за звернення! 🙏`);
+      if (userQuestion && userQuestion !== '/start') {
+        bot.sendMessage(groupId, `Нове питання від користувача! 📱\nІм'я: ${userName}\nТелефон: ${userContact}\nПитання: ${userQuestion}`);
+        bot.sendMessage(chatId, `Ваше питання: "${userQuestion}" 🤔. Дякуємо за звернення! 🙏`);
+        bot.removeListener('message', handleUserQuestion); // Видаляємо обробник для цього користувача після відповіді
+      }
     }
-  });
+  };
+
+  bot.on('message', handleUserQuestion); // Додаємо обробник тільки для цього користувача
 });
